@@ -8,19 +8,18 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 
 public class  PdfReader {
 
     public static final String REGION_NAME = "content";
 
-    public void pdfFindOut(){
+    public static void pdfFindOut(){
         PDDocument document = null;
-        String filepath = "G:\\下载\\年报财务报表.pdf";
+        String filepath = "D:\\下载\\年报财务报表.pdf";
         File pdfFile = new File(filepath);
         try {
             // 方式一：
@@ -103,7 +102,6 @@ public class  PdfReader {
             PDFRenderer pdfRenderer = new PDFRenderer(pdfDoc);
             // 截取指定位置生产图片
             bufImage = pdfRenderer.renderImage(iPage).getSubimage(imgRrect.x,imgRrect.y,imgRrect.width,imgRrect.height);
-
             // 释放资源
             pdfDoc.close();
         } catch (Exception ex) {
@@ -113,5 +111,31 @@ public class  PdfReader {
         return bufImage;
     }
 
+    /**
+    * 保存图片
+    */
+    public static String savePerImage(String srcPath,String dscPath){
 
+        File file = new File(srcPath);
+        try {
+            PDDocument doc = PDDocument.load(file);
+            PDFRenderer renderer = new PDFRenderer(doc);
+            int pageCount = doc.getNumberOfPages();
+            for (int i = 0; i < pageCount; i++) {
+                // 方式1,第二个参数是设置缩放比(即像素)
+                BufferedImage image = renderer.renderImageWithDPI(i, 296);
+                // 方式2,第二个参数是设置缩放比(即像素)
+                // BufferedImage image = renderer.renderImage(i, 2.5f);
+                File f = new File(dscPath+"test"+ i + ".jpg");
+                if (!f.getParentFile().exists()){
+                    f.getParentFile().mkdirs();
+                }
+                ImageIO.write(image, "JPG", f);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "success";
+    }
 }
